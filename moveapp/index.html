@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+</head>
+
+<body onload="fetchMovie(); fetchGenres()">
+    <div class="container-fluid m-3">
+        <div class="row mb-3">
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchQuery" placeholder="Search for a movie...">
+                    <button class="btn btn-outline-secondary" type="button" onclick="searchMovie()">Search</button>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-6 col-lg-4">
+                <select class="form-select" id="genreSelect" onchange="filterByGenre()">
+                </select>
+            </div>
+        </div>
+        <div class="row" id="movies"></div>
+    </div>
+    <script>
+        async function fetchMovie() {
+            let response = await fetch('https://api.themoviedb.org/3/movie/popular?api_key=d58cae4562f68f92f24ef8a0736b6787');
+            let data = await response.json();
+            let movies = data.results;
+            let output = '';
+            for (let movie of movies) {
+                output += `
+                    <div class="col-sm-4 col-md-3 col-lg-3">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="card-img-top">
+                            <div class="card-body">
+                                <h2 class="card-title">${movie.title}</h2>
+                                <h5 class="card-title">${movie.release_date}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('movies').innerHTML = output;
+        }
+
+        async function searchMovie() {
+            let query = document.getElementById('searchQuery').value;
+            let response = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=d58cae4562f68f92f24ef8a0736b6787&query=${query}`);
+            let data = await response.json();
+            let movies = data.results;
+            let output = '';
+            for (let movie of movies) {
+                output += `
+                    <div class="col-sm-4 col-md-3 col-lg-3">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="card-img-top">
+                            <div class="card-body">
+                                <h2 class="card-title">${movie.title}</h2>
+                                <h5 class="card-title">${movie.release_date}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('movies').innerHTML = output;
+        }
+
+        async function fetchGenres() {
+            let response = await fetch('https://api.themoviedb.org/3/genre/movie/list?api_key=d58cae4562f68f92f24ef8a0736b6787');
+            let data = await response.json();
+            let genres = data.genres;
+            let output = '<option value="">All Genres</option>';
+            for (let genre of genres) {
+                output += `<option value="${genre.id}">${genre.name}</option>`;
+            }
+            document.getElementById('genreSelect').innerHTML = output;
+        }
+
+        async function filterByGenre() {
+            let genreId = document.getElementById('genreSelect').value;
+            let response = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=d58cae4562f68f92f24ef8a0736b6787&with_genres=${genreId}`);
+            let data = await response.json();
+            let movies = data.results;
+            let output = '';
+            for (let movie of movies){
+                output += `
+                    <div class="col-sm-4 col-md-3 col-lg-3">
+                        <div class="card">
+                            <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" class="card-img-top">
+                            <div class="card-body">
+                                <h2 class="card-title">${movie.title}</h2>
+                                <h5 class="card-title">${movie.release_date}</h5>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('movies').innerHTML = output;
+        }
+    </script>
+</body>
+
+</html>
+            
